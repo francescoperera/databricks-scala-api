@@ -16,7 +16,7 @@ object DatabricksJsonProtocol extends DefaultJsonProtocol {
   implicit val mavenFmt = jsonFormat3(Maven)
   implicit val libraryFmt = jsonFormat2(Library)
   implicit val jarFmt = jsonFormat3(JarTask)
-  implicit val notifyFmt = jsonFormat1(Notifications)
+  implicit val notifyFmt = jsonFormat3(Notifications)
   implicit val scheduleFmt = jsonFormat2(CronSchedule)
   implicit val jobFmt = jsonFormat9(Job)
   implicit val jobresetFmt = jsonFormat2(ResetJob)
@@ -26,4 +26,8 @@ object DatabricksJsonProtocol extends DefaultJsonProtocol {
   implicit val exceptionFmt = jsonFormat2(DatabricksException)
   implicit val deleteFmt = jsonFormat2(Delete)
   implicit val emptyFmt = jsonFormat0(EmptyResponse)
+  implicit val deleteJobFmt = jsonFormat1(DeleteJob)
+  implicit val jobIdFmt = jsonFormat2(JobWithId)
+  implicit val jobListEntryFmt = jsonFormat2(JobListEntry)
+  implicit val jobListFmt = jsonFormat1(JobList)
 }

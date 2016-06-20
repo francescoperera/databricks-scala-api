@@ -2,7 +2,7 @@ package io.findify.databricks.calls
 
 import akka.http.scaladsl.HttpExt
 import io.findify.databricks.Auth
-import io.findify.databricks.api.{CreateJobResponse, Job, ResetJob}
+import io.findify.databricks.api._
 import spray.json._
 
 import scala.concurrent.Future
@@ -10,14 +10,26 @@ import scala.concurrent.Future
 /**
   * Created by shutty on 6/20/16.
   */
-class Jobs(auth:Auth, client:HttpExt) extends ApiCall(s"https://${auth.hostname}/api/2.0/dbfs", client, auth) {
+class Jobs(auth:Auth, client:HttpExt) extends ApiCall(s"https://${auth.hostname}/api/2.0/jobs", client, auth) {
   import io.findify.databricks.api.DatabricksJsonProtocol._
   import client.system.dispatcher
-  def create(job:Job):Future[Int] = {
-    postJson("/create", job.toJson).map(_.convertTo[CreateJobResponse]).map(_.job_id)
+  def create(job:Job) = {
+    postJson("create", job.toJson).map(_.convertTo[CreateJobResponse])
+  }
+
+  def create2(job:Job) = {
+    postJson("create", job.toJson).map(_.prettyPrint)
   }
 
   def reset(id:Int, job:Job) = {
-    postJson("/reset", ResetJob(id, job).toJson)
+    postJson("reset", ResetJob(id, job).toJson).map(_.convertTo[EmptyResponse])
   }
+
+  def delete(id:Int) = {
+    postJson("delete", DeleteJob(id).toJson).map(_.convertTo[EmptyResponse])
+  }
+
+  def list() = getJson("list").map(_.convertTo[JobList])
+
+  def get(id:Int) = getJson("get", Map("job_id" -> id.toString)).map(_.convertTo[JobWithId])
 }

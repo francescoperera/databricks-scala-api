@@ -11,14 +11,9 @@ import scala.concurrent.duration._
 /**
   * Created by shutty on 6/20/16.
   */
-class DbfsSpec extends FlatSpec with Matchers {
-  val username = System.getenv("DBUSER")
-  val password = System.getenv("DBPASS")
-  val host = System.getenv("DBHOST")
+class DbfsSpec extends FlatSpec with DatabricksSupport with Matchers {
 
-  lazy val client = new Databricks(Auth(host, username, password))
-
-  "Databricks API" should "upload a sample file" in {
+  "Databricks API / Dbfs" should "upload a sample file" in {
     val data = "hello".getBytes()
     val result = Await.result(client.dbfs.put(data, "/test-upload"), 60.seconds)
     assert(result == EmptyResponse())
