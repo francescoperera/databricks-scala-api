@@ -2,7 +2,7 @@ package io.findify.databricks
 
 import java.nio.ByteBuffer
 
-import io.findify.databricks.api.{DatabricksException, StatusResponse}
+import io.findify.databricks.api.{DatabricksException, Delete, EmptyResponse, StatusResponse}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.Await
@@ -21,7 +21,7 @@ class DbfsSpec extends FlatSpec with Matchers {
   "Databricks API" should "upload a sample file" in {
     val data = "hello".getBytes()
     val result = Await.result(client.dbfs.put(data, "/test-upload"), 60.seconds)
-    assert(result > 0)
+    assert(result == EmptyResponse())
   }
 
   it should "read the file" in {
@@ -36,6 +36,12 @@ class DbfsSpec extends FlatSpec with Matchers {
 
   it should "fail on non-existent files" in {
     val info = Try(Await.result(client.dbfs.getStatus("/not-exists"), 10.seconds))
+    assert(info.isFailure)
+  }
+
+  it should "remove file" in {
+    val remove = Await.result(client.dbfs.delete(Delete("/test-upload")), 10.seconds)
+    val info = Try(Await.result(client.dbfs.getStatus("/test-upload"), 10.seconds))
     assert(info.isFailure)
   }
 

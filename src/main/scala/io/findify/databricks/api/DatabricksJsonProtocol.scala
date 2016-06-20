@@ -24,4 +24,6 @@ object DatabricksJsonProtocol extends DefaultJsonProtocol {
   implicit val readBlockResponseFmt = jsonFormat2(ReadBlockResponse)
   implicit val statusResponse = jsonFormat3(StatusResponse)
   implicit val exceptionFmt = jsonFormat2(DatabricksException)
+  implicit val deleteFmt = jsonFormat2(Delete)
+  implicit val emptyFmt = jsonFormat0(EmptyResponse)
 }

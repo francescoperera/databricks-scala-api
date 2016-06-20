@@ -15,7 +15,7 @@ import scala.concurrent.Future
 class Dbfs(auth:Auth, client:HttpExt) extends ApiCall(s"https://${auth.hostname}/api/2.0/dbfs", client, auth) {
   import DatabricksJsonProtocol._
   import client.system.dispatcher
-  def put(data:Array[Byte], path:String):Future[Int] = {
+  def put(data:Array[Byte], path:String):Future[EmptyResponse] = {
     def upload(chunks: Array[Array[Byte]], offset:Int, handle:Int):Future[JsValue] = {
       if (offset < chunks.length)
         postJson("add-block", AddBlock(chunks(offset), handle).toJson).flatMap(_ => upload(chunks, offset + 1, handle))
@@ -29,7 +29,7 @@ class Dbfs(auth:Auth, client:HttpExt) extends ApiCall(s"https://${auth.hostname}
       closeStream <- postJson("close", CloseStream(createStream.handle).toJson)
     ) yield {
       logger.debug("Upload finished")
-      createStream.handle
+      EmptyResponse()
     }
   }
 
@@ -39,7 +39,7 @@ class Dbfs(auth:Auth, client:HttpExt) extends ApiCall(s"https://${auth.hostname}
       .map(Base64.getDecoder.decode)
   }
 
-  def getStatus(path:String) = {
+  def getStatus(path:String):Future[StatusResponse] = {
     get("get-status", Map("path" -> path))
       .map(_.utf8String.parseJson.convertTo[Either[StatusResponse, DatabricksException]])
       .map {
@@ -48,8 +48,13 @@ class Dbfs(auth:Auth, client:HttpExt) extends ApiCall(s"https://${auth.hostname}
       }
   }
 
-  def getStatus2(path:String) = {
-    get("get-status", Map("path" -> path))
-      .map(_.utf8String)
+  def delete(del:Delete):Future[EmptyResponse] = {
+    postJson("delete", del.toJson)
+      .map(_.convertTo[Either[EmptyResponse, DatabricksException]])
+      .map {
+        case Left(empty) => empty
+        case Right(ex) => throw ex
+      }
+
   }
 }
