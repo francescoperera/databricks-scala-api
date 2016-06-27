@@ -2,8 +2,6 @@ package io.findify.databricks.calls
 
 import java.nio.ByteBuffer
 import java.util.Base64
-
-import akka.http.scaladsl.HttpExt
 import io.findify.databricks.Auth
 import io.findify.databricks.api._
 import spray.json._
@@ -12,9 +10,10 @@ import scala.concurrent.Future
 /**
   * Created by shutty on 5/26/16.
   */
-class Dbfs(auth:Auth, client:HttpExt) extends ApiCall(s"https://${auth.hostname}/api/2.0/dbfs", client, auth) {
+class Dbfs(auth:Auth) extends ApiCall(s"https://${auth.hostname}/api/2.0/dbfs", auth) {
   import DatabricksJsonProtocol._
-  import client.system.dispatcher
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   def put(data:Array[Byte], path:String):Future[EmptyResponse] = {
     def upload(chunks: Array[Array[Byte]], offset:Int, handle:Int):Future[JsValue] = {
       if (offset < chunks.length)
@@ -34,14 +33,14 @@ class Dbfs(auth:Auth, client:HttpExt) extends ApiCall(s"https://${auth.hostname}
   }
 
   def read(length:Int, offset:Int, path:String):Future[Array[Byte]] = {
-    get("read", Map("length" -> length.toString, "offset" -> offset.toString, "path" -> path))
-      .map(_.utf8String.parseJson.convertTo[ReadBlockResponse].data)
+    getJson("read", Map("length" -> length.toString, "offset" -> offset.toString, "path" -> path))
+      .map(_.convertTo[ReadBlockResponse].data)
       .map(Base64.getDecoder.decode)
   }
 
   def getStatus(path:String):Future[StatusResponse] = {
-    get("get-status", Map("path" -> path))
-      .map(_.utf8String.parseJson.convertTo[Either[StatusResponse, DatabricksException]])
+    getJson("get-status", Map("path" -> path))
+      .map(_.convertTo[Either[StatusResponse, DatabricksException]])
       .map {
         case Left(status) => status
         case Right(ex) => throw ex

@@ -1,18 +1,17 @@
 package io.findify.databricks.calls
 
-import akka.http.scaladsl.HttpExt
 import io.findify.databricks.Auth
 import io.findify.databricks.api._
 import spray.json._
-
 import scala.concurrent.Future
 
 /**
   * Created by shutty on 6/20/16.
   */
-class Jobs(auth:Auth, client:HttpExt) extends ApiCall(s"https://${auth.hostname}/api/2.0/jobs", client, auth) {
+class Jobs(auth:Auth) extends ApiCall(s"https://${auth.hostname}/api/2.0/jobs", auth) {
   import io.findify.databricks.api.DatabricksJsonProtocol._
-  import client.system.dispatcher
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   def create(job:Job) = {
     postJson("create", job.toJson).map(_.convertTo[CreateJobResponse])
   }
