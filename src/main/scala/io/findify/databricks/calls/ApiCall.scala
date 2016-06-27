@@ -3,7 +3,7 @@ package io.findify.databricks.calls
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.findify.databricks.Auth
 import org.asynchttpclient.util.{AuthenticatorUtils, Base64}
-import org.asynchttpclient.{DefaultAsyncHttpClient, Param, Realm, RequestBuilder}
+import org.asynchttpclient._
 import spray.json._
 
 import scala.collection.JavaConverters._
@@ -13,8 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * Created by shutty on 6/20/16.
   */
-abstract class ApiCall(endpoint:String, auth:Auth) extends LazyLogging {
-  val client = new DefaultAsyncHttpClient()
+abstract class ApiCall(endpoint:String, auth:Auth, client:AsyncHttpClient) extends LazyLogging {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   protected def get(method:String, params:Map[String,String] = Map()):Future[String] = {

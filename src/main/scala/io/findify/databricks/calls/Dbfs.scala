@@ -2,15 +2,17 @@ package io.findify.databricks.calls
 
 import java.nio.ByteBuffer
 import java.util.Base64
+
 import io.findify.databricks.Auth
 import io.findify.databricks.api._
+import org.asynchttpclient.AsyncHttpClient
 import spray.json._
 
 import scala.concurrent.Future
 /**
   * Created by shutty on 5/26/16.
   */
-class Dbfs(auth:Auth) extends ApiCall(s"https://${auth.hostname}/api/2.0/dbfs", auth) {
+class Dbfs(auth:Auth, client:AsyncHttpClient) extends ApiCall(s"https://${auth.hostname}/api/2.0/dbfs", auth, client) {
   import DatabricksJsonProtocol._
   import scala.concurrent.ExecutionContext.Implicits.global
 

@@ -2,13 +2,15 @@ package io.findify.databricks.calls
 
 import io.findify.databricks.Auth
 import io.findify.databricks.api._
+import org.asynchttpclient.AsyncHttpClient
 import spray.json._
+
 import scala.concurrent.Future
 
 /**
   * Created by shutty on 6/20/16.
   */
-class Jobs(auth:Auth) extends ApiCall(s"https://${auth.hostname}/api/2.0/jobs", auth) {
+class Jobs(auth:Auth, client:AsyncHttpClient) extends ApiCall(s"https://${auth.hostname}/api/2.0/jobs", auth, client) {
   import io.findify.databricks.api.DatabricksJsonProtocol._
   import scala.concurrent.ExecutionContext.Implicits.global
 
