@@ -1,6 +1,6 @@
 name := "databricks-scala-api"
 
-version := "0.2.1"
+version := "0.2.2"
 
 crossScalaVersions := Seq("2.10.6", "2.11.8")
 

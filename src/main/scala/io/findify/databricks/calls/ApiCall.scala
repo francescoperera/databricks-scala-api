@@ -8,7 +8,7 @@ import spray.json._
 
 import scala.collection.JavaConverters._
 import scala.compat.java8.FutureConverters._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 /**
   * Created by shutty on 6/20/16.
@@ -36,15 +36,16 @@ abstract class ApiCall(endpoint:String, auth:Auth, client:AsyncHttpClient) exten
   }
 
   protected def postJson(method:String, data:JsValue):Future[JsValue] = {
+    val json = data.compactPrint
       val request = new RequestBuilder()
         .setUrl(s"$endpoint/$method")
-        .setBody(data.compactPrint)
+        .setBody(json)
         .setMethod("POST")
         .setHeader("Authorization", AuthenticatorUtils.perRequestAuthorizationHeader(
           new Realm.Builder(auth.username, auth.password).setScheme(Realm.AuthScheme.BASIC).setUsePreemptiveAuth(true).build())
         )
 
-    logger.debug(s"Sending POST request to $endpoint/$method, data = ${data.compactPrint}")
+    logger.debug(s"Sending POST request to $endpoint/$method, data = ${json.take(80)}...")
     toScala(client.prepareRequest(request).execute().toCompletableFuture).map(response => {
       logger.debug(s"got response: ${response.getResponseBody}")
       response.getResponseBody.parseJson
