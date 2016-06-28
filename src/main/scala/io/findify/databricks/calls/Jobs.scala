@@ -3,7 +3,9 @@ package io.findify.databricks.calls
 import io.findify.databricks.Auth
 import io.findify.databricks.api._
 import org.asynchttpclient.AsyncHttpClient
-import spray.json._
+import org.json4s._
+import org.json4s.native.Serialization
+import org.json4s.native.Serialization.{write, read => readjson}
 
 import scala.concurrent.Future
 
@@ -11,26 +13,22 @@ import scala.concurrent.Future
   * Created by shutty on 6/20/16.
   */
 class Jobs(auth:Auth, client:AsyncHttpClient) extends ApiCall(s"https://${auth.hostname}/api/2.0/jobs", auth, client) {
-  import io.findify.databricks.api.DatabricksJsonProtocol._
   import scala.concurrent.ExecutionContext.Implicits.global
+  implicit val formats = Serialization.formats(NoTypeHints)
 
   def create(job:Job) = {
-    postJson("create", job.toJson).map(_.convertTo[CreateJobResponse])
-  }
-
-  def create2(job:Job) = {
-    postJson("create", job.toJson).map(_.prettyPrint)
+    postJson("create", write(job)).map(readjson[CreateJobResponse])
   }
 
   def reset(id:Int, job:Job) = {
-    postJson("reset", ResetJob(id, job).toJson).map(_.convertTo[EmptyResponse])
+    postJson("reset", write(ResetJob(id, job))).map(readjson[EmptyResponse])
   }
 
   def delete(id:Int) = {
-    postJson("delete", DeleteJob(id).toJson).map(_.convertTo[EmptyResponse])
+    postJson("delete", write(DeleteJob(id))).map(readjson[EmptyResponse])
   }
 
-  def list() = getJson("list").map(_.convertTo[JobList])
+  def list() = getJson("list").map(readjson[JobList])
 
-  def get(id:Int) = getJson("get", Map("job_id" -> id.toString)).map(_.convertTo[JobWithId])
+  def get(id:Int) = getJson("get", Map("job_id" -> id.toString)).map(readjson[JobWithId])
 }

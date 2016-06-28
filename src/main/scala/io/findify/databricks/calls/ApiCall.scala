@@ -4,7 +4,6 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.findify.databricks.Auth
 import org.asynchttpclient.util.{AuthenticatorUtils, Base64}
 import org.asynchttpclient._
-import spray.json._
 
 import scala.collection.JavaConverters._
 import scala.compat.java8.FutureConverters._
@@ -17,7 +16,7 @@ abstract class ApiCall(endpoint:String, auth:Auth, client:AsyncHttpClient) exten
   import scala.concurrent.ExecutionContext.Implicits.global
 
   protected def get(method:String, params:Map[String,String] = Map()):Future[String] = {
-    logger.debug(s"Sending GET request to $endpoint/$method, params = $params")
+    logger.info(s"Sending GET request to $endpoint/$method, params = $params")
     val request = new RequestBuilder()
       .setUrl(s"$endpoint/$method")
       .setQueryParams(params.map { case (k, v) => new Param(k, v) }.toList.asJava)
@@ -31,12 +30,11 @@ abstract class ApiCall(endpoint:String, auth:Auth, client:AsyncHttpClient) exten
     })
   }
 
-  protected def getJson(method:String, params:Map[String,String] = Map()):Future[JsValue] = {
-    get(method, params).map(_.parseJson)
+  protected def getJson(method:String, params:Map[String,String] = Map()):Future[String] = {
+    get(method, params)
   }
 
-  protected def postJson(method:String, data:JsValue):Future[JsValue] = {
-    val json = data.compactPrint
+  protected def postJson(method:String, json:String):Future[String] = {
       val request = new RequestBuilder()
         .setUrl(s"$endpoint/$method")
         .setBody(json)
@@ -45,10 +43,11 @@ abstract class ApiCall(endpoint:String, auth:Auth, client:AsyncHttpClient) exten
           new Realm.Builder(auth.username, auth.password).setScheme(Realm.AuthScheme.BASIC).setUsePreemptiveAuth(true).build())
         )
 
-    logger.debug(s"Sending POST request to $endpoint/$method, data = ${json.take(80)}...")
+    logger.info(s"Sending POST request to $endpoint/$method")
+    logger.debug("data = ${json.take(80)}...")
     toScala(client.prepareRequest(request).execute().toCompletableFuture).map(response => {
       logger.debug(s"got response: ${response.getResponseBody}")
-      response.getResponseBody.parseJson
+      response.getResponseBody
     })
   }
 }
