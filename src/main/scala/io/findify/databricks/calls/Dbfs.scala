@@ -29,7 +29,7 @@ class Dbfs(auth:Auth, client:AsyncHttpClient) extends ApiCall(s"https://${auth.h
     logger.debug(s"Uploading ${data.length} bytes to $path")
     for (
       createStream <- postJson("create", write(CreateStream(path, overwrite = true))).map(jsonread[CreateStreamResponse]);
-      _ <- upload(data.sliding(10000, 10000).toArray, 0, createStream.handle);
+      _ <- upload(data.sliding(100000, 100000).toArray, 0, createStream.handle);
       closeStream <- postJson("close", write(CloseStream(createStream.handle)))
     ) yield {
       logger.debug("Upload finished")

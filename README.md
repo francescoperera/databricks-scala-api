@@ -11,7 +11,7 @@ Other methods may be implemented in the latest versions of the library.
 
 for SBT, add to your `build.sbt`:
 
-    libraryDependencies += "io.findify" %% "databricks-scala-api" % "0.2.1"
+    libraryDependencies += "io.findify" %% "databricks-scala-api" % "0.2.4"
 
 The library supports both scala 2.10 and 2.11 (but keep in mind that databricks in 2016 still does not support 2.11).
 
