@@ -59,6 +59,19 @@ class Dbfs(auth:Auth, client:AsyncHttpClient) extends ApiCall(s"https://${auth.h
         case Left(empty) => empty
         case Right(ex) => throw ex
       }
+  }
 
+  def list(path:String) = {
+    getJson("list", Map("path" -> path))
+      .map(jsonread[FileList])
+  }
+
+  def mkdir(path:String) = {
+    postJson("mkdir", write(Mkdir(path)))
+      .map(jsonread[Either[EmptyResponse, DatabricksException]])
+      .map {
+        case Left(empty) => empty
+        case Right(ex) => throw ex
+      }
   }
 }

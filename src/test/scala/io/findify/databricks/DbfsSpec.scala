@@ -34,10 +34,26 @@ class DbfsSpec extends FlatSpec with DatabricksSupport with Matchers {
     assert(info.isFailure)
   }
 
+  it should "list root" in {
+    val info = Await.result(client.dbfs.list("/"), 10.seconds)
+    assert(info.files.exists(_.path.contains("test-upload")))
+  }
+
+  it should "create folder" in {
+    val info = Await.result(client.dbfs.mkdir("/test-dir"), 10.seconds)
+    assert(info == EmptyResponse())
+  }
+
+  it should "remove folder" in {
+    val info = Await.result(client.dbfs.delete(Delete("/test-dir", true)), 10.seconds)
+    assert(info == EmptyResponse())
+  }
+
   it should "remove file" in {
     val remove = Await.result(client.dbfs.delete(Delete("/test-upload")), 10.seconds)
     val info = Try(Await.result(client.dbfs.getStatus("/test-upload"), 10.seconds))
     assert(info.isFailure)
   }
+
 
 }
