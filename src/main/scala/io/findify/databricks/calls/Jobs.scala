@@ -5,7 +5,7 @@ import io.findify.databricks.api._
 import org.asynchttpclient.AsyncHttpClient
 import org.json4s._
 import org.json4s.native.Serialization
-import org.json4s.native.Serialization.{write, read => readjson}
+import org.json4s.native.Serialization.{writePretty, read => readjson}
 
 import scala.concurrent.Future
 
@@ -17,15 +17,15 @@ class Jobs(auth:Auth, client:AsyncHttpClient) extends ApiCall(s"https://${auth.h
   implicit val formats = Serialization.formats(NoTypeHints)
 
   def create(job:Job) = {
-    postJson("create", write(job)).map(readjson[CreateJobResponse])
+    postJson("create", writePretty(job)).map(readjson[CreateJobResponse])
   }
 
   def reset(id:Int, job:Job) = {
-    postJson("reset", write(ResetJob(id, job))).map(readjson[EmptyResponse])
+    postJson("reset", writePretty(ResetJob(id, job))).map(readjson[EmptyResponse])
   }
 
   def delete(id:Int) = {
-    postJson("delete", write(DeleteJob(id))).map(readjson[EmptyResponse])
+    postJson("delete", writePretty(DeleteJob(id))).map(readjson[EmptyResponse])
   }
 
   def list() = getJson("list").map(readjson[JobList])

@@ -44,7 +44,11 @@ abstract class ApiCall(endpoint:String, auth:Auth, client:AsyncHttpClient) exten
         )
 
     logger.info(s"Sending POST request to $endpoint/$method")
-    logger.debug("data = ${json.take(80)}...")
+    val debugJson = method match {
+      case "add-block" => json.take(80) + "..."
+      case _ => json
+    }
+    logger.debug(s"data = $debugJson")
     toScala(client.prepareRequest(request).execute().toCompletableFuture).map(response => {
       logger.debug(s"got response: ${response.getResponseBody}")
       response.getResponseBody
