@@ -10,11 +10,13 @@ import scala.concurrent.duration._
 object Cli {
 
   def main(args: Array[String]) = {
-    val host = Option(System.getenv("DBC_HOST")).getOrElse(throw new IllegalArgumentException("DBC_HOST is not defined"))
-    val user = Option(System.getenv("DBC_USER")).getOrElse(throw new IllegalArgumentException("DBC_USER is not defined"))
-    val pass = Option(System.getenv("DBC_PASS")).getOrElse(throw new IllegalArgumentException("DBC_PASS is not defined"))
+    //val host = Option(System.getenv("DBC_HOST")).getOrElse(throw new IllegalArgumentException("DBC_HOST is not defined"))
+    val host  = "weightwatchers-poc.cloud.databricks.com"
+    val user = Option(System.getenv("DATABRICKS_USERNAME")).getOrElse(throw new IllegalArgumentException("DBC_USER is not defined"))
+    val pass = Option(System.getenv("DATABRICKS_PASSWORD")).getOrElse(throw new IllegalArgumentException("DBC_PASS is not defined"))
     val dbc = new Databricks(Auth(host, user, pass))
 
+    println(args.toList)
     args.toList match {
       case "ls" :: path :: Nil =>
         Await.result(dbc.dbfs.list(path), 10.seconds).files.foreach( f => {
@@ -30,6 +32,7 @@ object Cli {
         Await.result(dbc.dbfs.mkdir(path), 10.seconds)
         println("done")
       case _ =>
+        println(args.toList)
         println("not supported")
     }
     dbc.close

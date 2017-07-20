@@ -14,7 +14,7 @@ import scala.concurrent.Future
 /**
   * Created by shutty on 5/26/16.
   */
-class Dbfs(auth:Auth, client:AsyncHttpClient) extends ApiCall(s"https://${auth.hostname}/api/2.0/dbfs", auth, client) {
+class Dbfs (auth:Auth, client:AsyncHttpClient) extends ApiCall(s"https://${auth.hostname}/api/2.0/dbfs", auth, client) {
   import scala.concurrent.ExecutionContext.Implicits.global
   implicit val formats = Serialization.formats(NoTypeHints)
 
